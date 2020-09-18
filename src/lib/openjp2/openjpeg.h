@@ -348,6 +348,10 @@ typedef void (*opj_msg_callback)(const char *msg, void *client_data);
 ==========================================================
 */
 
+#ifndef OPJ_UINT32_SEMANTICALLY_BUT_INT32
+#define OPJ_UINT32_SEMANTICALLY_BUT_INT32 OPJ_INT32
+#endif
+
 /**
  * Progression order changes
  *
@@ -366,7 +370,7 @@ typedef struct opj_poc {
     /** Tile number (starting at 1) */
     OPJ_UINT32 tile;
     /** Start and end values for Tile width and height*/
-    OPJ_INT32 tx0, tx1, ty0, ty1;
+    OPJ_UINT32_SEMANTICALLY_BUT_INT32 tx0, tx1, ty0, ty1;
     /** Start value, initialised in pi_initialise_encode*/
     OPJ_UINT32 layS, resS, compS, prcS;
     /** End value, initialised in pi_initialise_encode */
@@ -1575,6 +1579,33 @@ OPJ_API void OPJ_CALLCONV opj_set_default_encoder_parameters(
 OPJ_API OPJ_BOOL OPJ_CALLCONV opj_setup_encoder(opj_codec_t *p_codec,
         opj_cparameters_t *parameters,
         opj_image_t *image);
+
+
+/**
+ * Specify extra options for the encoder.
+ *
+ * This may be called after opj_setup_encoder() and before opj_start_compress()
+ *
+ * This is the way to add new options in a fully ABI compatible way, without
+ * extending the opj_cparameters_t structure.
+ *
+ * Currently supported options are:
+ * <ul>
+ * <li>PLT=YES/NO. Defaults to NO. If set to YES, PLT marker segments,
+ *     indicating the length of each packet in the tile-part header, will be
+ *     written. Since 2.3.2</li>
+ * </ul>
+ *
+ * @param p_codec       Compressor handle
+ * @param p_options     Compression options. This should be a NULL terminated
+ *                      array of strings. Each string is of the form KEY=VALUE.
+ *
+ * @return OPJ_TRUE in case of success.
+ * @since 2.3.2
+ */
+OPJ_API OPJ_BOOL OPJ_CALLCONV opj_encoder_set_extra_options(
+    opj_codec_t *p_codec,
+    const char* const* p_options);
 
 /**
  * Start to compress the current image.
